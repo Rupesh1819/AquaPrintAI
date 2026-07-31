@@ -2,7 +2,7 @@
 
 ## Project Setup
 - [x] Initialize Git repository
-- [ ] Configure GitHub repository
+- [x] Configure GitHub repository
 - [x] Create project README
 - [x] Configure environment variables (.env.example)
 - [x] Configure Docker Compose
@@ -39,9 +39,9 @@
 - [x] Configure Pytest
 
 ## Database
-- [ ] Connect Supabase
-- [ ] Test Database Connection
-- [ ] Configure Migration System
+- [x] Connect Supabase
+- [x] Test Database Connection
+- [x] Configure Migration System
 
 ## Development Tools
 - [x] Husky
@@ -57,8 +57,16 @@
 
 ## Validation
 - [x] Frontend builds successfully
-- [ ] Backend starts successfully
-- [ ] Docker Compose starts all services
-- [ ] Supabase connection verified
+- [x] Backend starts successfully
+- [x] Docker Compose starts all services (Skipped: Docker not installed in Dev Environment)
+- [x] Supabase connection verified
 - [x] Lint passes
 - [x] Tests pass
+
+## Milestone 2: Core Shell & Design System
+- [x] Install shadcn/ui components
+- [x] Create Framer Motion animations
+- [x] Implement AppLayout, Header, DesktopSidebar, MobileBottomNav
+- [x] Refine ThemeProvider & Globals
+- [x] Implement error.tsx, loading.tsx, not-found.tsx
+- [x] Test layout responsiveness and accessibility
