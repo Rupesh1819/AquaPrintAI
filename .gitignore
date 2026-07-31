@@ -20,6 +20,7 @@ env/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
 
 .DS_Store
 Thumbs.db
@@ -27,3 +28,22 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Secrets & Credentials
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+secrets.json
+credentials.json
+service-account.json
+client_secret.json
+.npmrc
+.netrc
+.pgpass
+.htpasswd
+
+# Ignore all .env files just in case
+.env*
