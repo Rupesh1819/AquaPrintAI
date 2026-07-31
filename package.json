@@ -1,0 +1,30 @@
+{
+  "name": "aquaprintai",
+  "version": "1.0.0",
+  "description": "AquaPrint AI is a Water Footprint Awareness Platform designed to help consumers understand the \"virtual water\" embedded in products through AI-powered image recognition, barcode scanning, and educational insights.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "frontend/**/*.{ts,tsx,js,jsx}": [
+      "cd frontend && npm run lint",
+      "cd frontend && npx prettier --write"
+    ],
+    "backend/**/*.py": [
+      "cd backend && ruff check --fix",
+      "cd backend && ruff format"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0"
+  }
+}

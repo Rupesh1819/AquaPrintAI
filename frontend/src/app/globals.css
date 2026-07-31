@@ -1,0 +1,219 @@
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  
+  --font-geist: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-jetbrains: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Typography Scale */
+  --text-display: 64px;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.04em;
+  
+  --text-headline-lg: 40px;
+  --text-headline-lg--line-height: 1.2;
+  --text-headline-lg--letter-spacing: -0.02em;
+
+  --text-headline-lg-mobile: 32px;
+  --text-headline-lg-mobile--line-height: 1.2;
+  --text-headline-lg-mobile--letter-spacing: -0.02em;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 1.3;
+  --text-headline-md--letter-spacing: -0.01em;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.6;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 1.5;
+
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 1;
+  --text-label-caps--letter-spacing: 0.1em;
+
+  /* Spacing */
+  --spacing-unit: 4px;
+  --spacing-container-max: 1280px;
+  --spacing-gutter: 24px;
+  --spacing-margin-desktop: 64px;
+  --spacing-margin-mobile: 20px;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  
+  /* Colors */
+  --color-surface: var(--surface);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-inverse-primary: var(--inverse-primary);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+  --color-background: var(--background);
+  --color-on-background: var(--on-background);
+  --color-surface-variant: var(--surface-variant);
+  
+  /* shadcn defaults */
+  --color-foreground: var(--on-background);
+  --color-muted: var(--surface-variant);
+  --color-muted-foreground: var(--on-surface-variant);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--on-surface);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--on-surface);
+  --color-border: var(--outline-variant);
+  --color-input: var(--outline-variant);
+  --color-ring: var(--primary);
+  --color-destructive: var(--error);
+  --color-destructive-foreground: var(--on-error);
+  --radius: var(--radius-md);
+}
+
+:root {
+  --surface: #f8f9ff;
+  --surface-dim: #cbdbf5;
+  --surface-bright: #f8f9ff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #eff4ff;
+  --surface-container: #e5eeff;
+  --surface-container-high: #dce9ff;
+  --surface-container-highest: #d3e4fe;
+  --on-surface: #0b1c30;
+  --on-surface-variant: #3e4850;
+  --inverse-surface: #213145;
+  --inverse-on-surface: #eaf1ff;
+  --outline: #6e7881;
+  --outline-variant: #bec8d2;
+  --primary: #006591;
+  --on-primary: #ffffff;
+  --primary-container: #0ea5e9;
+  --on-primary-container: #003751;
+  --inverse-primary: #89ceff;
+  --secondary: #006c49;
+  --on-secondary: #ffffff;
+  --secondary-container: #6cf8bb;
+  --on-secondary-container: #00714d;
+  --tertiary: #00668a;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #00a7e0;
+  --on-tertiary-container: #00384e;
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+  --background: #f8f9ff;
+  --on-background: #0b1c30;
+  --surface-variant: #d3e4fe;
+}
+
+.dark {
+  --surface: #0b1c30;
+  --surface-dim: #000000;
+  --surface-bright: #0b1c30;
+  --surface-container-lowest: #000000;
+  --surface-container-low: #000000;
+  --surface-container: #000000;
+  --surface-container-high: #000000;
+  --surface-container-highest: #000000;
+  --on-surface: #f8f9ff;
+  --on-surface-variant: #cbdbf5;
+  --inverse-surface: #f8f9ff;
+  --inverse-on-surface: #0b1c30;
+  --outline: #bec8d2;
+  --outline-variant: #6e7881;
+  --primary: #89ceff;
+  --on-primary: #003751;
+  --primary-container: #004c6e;
+  --on-primary-container: #c9e6ff;
+  --inverse-primary: #006591;
+  --secondary: #6cf8bb;
+  --on-secondary: #003825;
+  --secondary-container: #005236;
+  --on-secondary-container: #8cfabc;
+  --tertiary: #7bd0ff;
+  --on-tertiary: #003549;
+  --tertiary-container: #004c69;
+  --on-tertiary-container: #c4e7ff;
+  --error: #ffdad6;
+  --on-error: #690005;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+  --background: #0b1c30;
+  --on-background: #f8f9ff;
+  --surface-variant: #3e4850;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    @apply font-sans;
+  }
+}
+
+/* Glassmorphism Levels */
+@layer utilities {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .dark .glass-card {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-modal {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 101, 145, 0.05);
+  }
+  
+  .dark .glass-modal {
+    background: rgba(15, 23, 42, 0.6);
+    box-shadow: 0 0 30px rgba(137, 206, 255, 0.05);
+  }
+
+  .bottom-nav {
+    backdrop-filter: blur(60px);
+  }
+}
