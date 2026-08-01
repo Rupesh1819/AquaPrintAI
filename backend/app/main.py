@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routers import auth, product, scanner, dashboard, ai, comparison, gamification
+from app.routers import auth, product, scanner, dashboard, ai, comparison, gamification, admin
 
 app = FastAPI(
     title="AquaPrint AI API",
@@ -30,4 +30,5 @@ app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["Dashboar
 app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI Assistant"])
 app.include_router(comparison.router, prefix="/api/v1/comparison", tags=["Comparison"])
 app.include_router(gamification.router, prefix="/api/v1/gamification", tags=["Gamification"])
+app.include_router(admin.router, prefix="/api/v1/admin", tags=["Admin"])
 

@@ -38,10 +38,9 @@ def list_challenges(current_user: UserProfile = Depends(get_current_user), db: S
 def join_a_challenge(id: str, current_user: UserProfile = Depends(get_current_user), db: Session = Depends(get_db)):
     return join_challenge(db, str(current_user.id), id)
 
-@router.post("/challenges/{id}/complete")
-def complete_challenge(id: str, current_user: UserProfile = Depends(get_current_user), db: Session = Depends(get_db)):
-    # Fast track completion for demo/offline sync
-    return progress_challenge(db, str(current_user.id), id, amount=999)
+@router.post("/challenges/{id}/progress")
+def complete_challenge(id: str, amount: int = 1, current_user: UserProfile = Depends(get_current_user), db: Session = Depends(get_db)):
+    return progress_challenge(db, str(current_user.id), id, amount=amount)
 
 @router.get("/badges")
 def list_badges(current_user: UserProfile = Depends(get_current_user), db: Session = Depends(get_db)):

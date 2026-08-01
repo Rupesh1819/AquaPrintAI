@@ -21,6 +21,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.models.ai import AIConversation, AIMessage
 from app.models.comparison import ComparisonSession
 from app.models.gamification import Challenge, ChallengeParticipation, Badge, UserBadge, XPTransaction, LeaderboardEntry
+from app.models.admin import AdminActionLog, SystemSettings, ImportJob, ExportJob
 from app.config import settings
 from app.database import Base
 import app.models.user

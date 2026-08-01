@@ -64,18 +64,8 @@ def get_recent_scans(current_user: UserProfile = Depends(get_current_user), db: 
 def get_goals(current_user: UserProfile = Depends(get_current_user), db: Session = Depends(get_db)):
     goals = db.query(UserGoal).filter(UserGoal.user_id == current_user.id).all()
     
-    # If no goals exist, create some defaults for demo purposes
     if not goals:
-        import datetime
-        now = datetime.datetime.now(datetime.timezone.utc)
-        default_goals = [
-            UserGoal(user_id=current_user.id, goal_type="daily", target_water_saved=10.0, start_date=now, end_date=now + datetime.timedelta(days=1)),
-            UserGoal(user_id=current_user.id, goal_type="weekly", target_water_saved=50.0, start_date=now, end_date=now + datetime.timedelta(days=7)),
-            UserGoal(user_id=current_user.id, goal_type="monthly", target_water_saved=200.0, start_date=now, end_date=now + datetime.timedelta(days=30))
-        ]
-        db.add_all(default_goals)
-        db.commit()
-        goals = default_goals
+        return []
         
     res = []
     for g in goals:

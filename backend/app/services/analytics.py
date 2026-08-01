@@ -11,9 +11,12 @@ def get_dashboard_summary(db: Session, user_id: uuid.UUID) -> Dict[str, Any]:
     # Total Scanned
     total_scans = db.query(ScanHistory).filter(ScanHistory.user_id == user_id, ScanHistory.success == True).count()
     
-    # Simple Water Saved logic: Sum of footprints of scanned products (mock logic: saving compared to average)
-    # Since we don't have baseline, we'll just mock saving 10L per scan for demo, or calculate properly later
-    estimated_water_saved = total_scans * 15.5
+    # Calculate water saved based on scanned products against a hypothetical baseline (e.g., 50L avg)
+    scans = db.query(ScanHistory).filter(ScanHistory.user_id == user_id, ScanHistory.success == True).all()
+    estimated_water_saved = sum(
+        max(0, 50.0 - (scan.product.water_footprint_liters or 50.0)) 
+        for scan in scans if scan.product
+    )
     
     # Average Sustainability Score
     avg_score_query = db.query(func.avg(Product.sustainability_score)).join(

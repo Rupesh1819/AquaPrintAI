@@ -12,12 +12,16 @@ def initialize_default_badges(db: Session):
         {"name": "Comparison Expert", "description": "Use the Comparison Engine.", "category": "Comparison", "icon_url": "compare_icon"}
     ]
     
+    from sqlalchemy.exc import IntegrityError
     for b in default_badges:
         exists = db.query(Badge).filter(Badge.name == b["name"]).first()
         if not exists:
             badge = Badge(**b)
             db.add(badge)
-    db.commit()
+            try:
+                db.commit()
+            except IntegrityError:
+                db.rollback()
 
 def get_user_badges(db: Session, user_id: str):
     # Returns all badges, marking which ones the user has unlocked

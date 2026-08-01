@@ -49,6 +49,22 @@ def get_current_user(
     except jwt.InvalidTokenError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {str(e)}")
 
+def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
+    db: Session = Depends(get_db)
+) -> Optional[UserProfile]:
+    if not credentials:
+        return None
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"], options={"verify_aud": False})
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        return db.query(UserProfile).filter(UserProfile.id == user_id).first()
+    except Exception:
+        return None
+
 def get_current_admin(user: UserProfile = Depends(get_current_user)):
     if user.role.value != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Requires admin role")

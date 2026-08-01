@@ -6,9 +6,10 @@ from datetime import datetime, timezone
 from app.database import Base
 
 class UserRole(str, enum.Enum):
-    USER = "user"
-    MODERATOR = "moderator"
+    SUPER_ADMIN = "super_admin"
     ADMIN = "admin"
+    MODERATOR = "moderator"
+    USER = "user"
 
 class AccountStatus(str, enum.Enum):
     ACTIVE = "active"
@@ -56,6 +57,8 @@ class UserSettings(Base):
     preferred_language = Column(String, default="en")
     daily_hydration_goal_ml = Column(Integer, default=2000)
     dietary_preference = Column(String, nullable=True)
+    avatar_url = Column(String, nullable=True)
+    role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 class AuthEvent(Base):

@@ -54,6 +54,13 @@ def get_comparison_data(db: Session, product_ids: List[str]) -> dict:
         ai_score = 8 
 
         p['decision_matrix_score'] = round(water_score + eco_score + carbon_score + materials_score + ai_score, 1)
+        p['decision_matrix_breakdown'] = {
+            "water": round((water_score / 35.0) * 100, 1),
+            "eco": round((eco_score / 25.0) * 100, 1),
+            "carbon": round((carbon_score / 15.0) * 100, 1),
+            "materials": round((materials_score / 15.0) * 100, 1),
+            "ai": round((ai_score / 10.0) * 100, 1)
+        }
 
     # Sort to determine winner internally
     sorted_products = sorted(products_data, key=lambda x: x['decision_matrix_score'], reverse=True)
