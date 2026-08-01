@@ -123,7 +123,7 @@ export default function ComparePage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+    <div className="space-y-6 animate-in fade-in duration-500 pb-20 md:pb-6">
       <div className="flex items-center justify-between sticky top-0 z-20 bg-background/80 backdrop-blur-md pt-2 pb-4">
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
           <Scale className="w-8 h-8 text-primary" /> Comparison Engine

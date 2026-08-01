@@ -45,7 +45,7 @@ export default function ChallengesPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+    <div className="space-y-6 animate-in fade-in duration-500 pb-20 md:pb-6">
       <div className="flex flex-col gap-2 pt-2 pb-4">
         <h1 className="text-3xl font-extrabold tracking-tight">Your Impact</h1>
         <p className="text-on-surface-variant">Complete quests to level up and earn rewards.</p>

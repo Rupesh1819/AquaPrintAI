@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useDashboardStore } from "@/store/useDashboardStore";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 import { SummaryCards } from "@/components/dashboard/SummaryCards";
 import { AnalyticsCharts } from "@/components/dashboard/AnalyticsCharts";
@@ -17,6 +18,7 @@ import { Droplets, ScanLine, Info } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const supabase = createClient();
   const [isClient, setIsClient] = useState(false);
   
@@ -135,10 +137,10 @@ export default function DashboardPage() {
           <p className="text-on-surface-variant">Here is your sustainability impact today.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => router.push("/challenges")}>
             <Droplets className="w-4 h-4" /> Goals
           </Button>
-          <Button className="bg-primary text-on-primary gap-2">
+          <Button className="bg-primary text-on-primary gap-2" onClick={() => router.push("/scanner")}>
             <ScanLine className="w-4 h-4" /> Scan Product
           </Button>
         </div>
@@ -159,7 +161,7 @@ export default function DashboardPage() {
           <p className="text-on-surface-variant max-w-md mb-6">
             Start scanning products to unlock your personalized dashboard, track your water footprint, and discover sustainable alternatives.
           </p>
-          <Button size="lg" className="bg-primary text-on-primary">
+          <Button size="lg" className="bg-primary text-on-primary" onClick={() => router.push("/scanner")}>
             Scan Your First Product
           </Button>
         </div>

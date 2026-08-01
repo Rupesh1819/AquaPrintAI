@@ -61,7 +61,7 @@ export function WaterFootprintChart({ footprints }: WaterFootprintChartProps) {
               ))}
             </Pie>
             <Tooltip 
-              formatter={(value: number) => [`${value} Liters`, 'Amount']}
+              formatter={(value: any) => [`${value} Liters`, 'Amount']}
               contentStyle={{ borderRadius: '12px', border: 'none', backgroundColor: 'var(--surface)' }}
             />
             <Legend verticalAlign="bottom" height={36} />

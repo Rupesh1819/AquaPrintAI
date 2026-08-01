@@ -16,7 +16,7 @@ export function ComparisonRadarChart({ products }: ComparisonRadarChartProps) {
 
   // We map decision matrix components into radar axes (normalized 0-100)
   // Axes: Water Footprint, Sustainability Score, Carbon Footprint, Materials, AI Relevance
-  const data = [
+  const data: any[] = [
     { subject: "Water Footprint", fullMark: 100 },
     { subject: "Sustainability", fullMark: 100 },
     { subject: "Carbon Footprint", fullMark: 100 },
@@ -27,14 +27,13 @@ export function ComparisonRadarChart({ products }: ComparisonRadarChartProps) {
   // Map products to the data array
   products.forEach((p, idx) => {
     const key = p.name;
-    // We reverse engineer the mock scores from the decision matrix for viz
-    const max_water = 35;
+    const breakdown = p.decision_matrix_breakdown || { water: 50, eco: 50, carbon: 50, materials: 50, ai: 50 };
     
-    data[0][key] = ((p.decision_matrix_score || 50) / 100) * 80 + 20; // Mock normalization
-    data[1][key] = p.score.overall_score;
-    data[2][key] = 85; // Mock carbon
-    data[3][key] = 70; // Mock materials
-    data[4][key] = 90; // Mock AI
+    data[0][key] = breakdown.water;
+    data[1][key] = breakdown.eco;
+    data[2][key] = breakdown.carbon;
+    data[3][key] = breakdown.materials;
+    data[4][key] = breakdown.ai;
   });
 
   return (
