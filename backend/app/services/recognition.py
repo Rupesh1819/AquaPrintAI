@@ -6,7 +6,9 @@ from typing import Dict, Any, Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, text, func
 from PIL import Image, ImageEnhance
-from google.cloud import vision
+# Migrated from Google Cloud Vision API to Google Gemini Vision
+from google import genai
+from google.genai import types
 from app.models.product import Product, ScanHistory, RecognitionType, BarcodeMapping
 
 logger = logging.getLogger(__name__)
@@ -15,13 +17,16 @@ class RecognitionPipelineManager:
     def __init__(self, db: Session, user_id: Optional[uuid.UUID] = None):
         self.db = db
         self.user_id = user_id
-        # In a real setup, GOOGLE_APPLICATION_CREDENTIALS environment variable should point to the JSON key file.
-        # Alternatively, passing credentials directly to vision.ImageAnnotatorClient().
-        try:
-            self.vision_client = vision.ImageAnnotatorClient()
-        except Exception as e:
-            logger.warning(f"Vision Client not initialized properly: {e}")
-            self.vision_client = None
+        # Initialize Gemini Client
+        gemini_key = getattr(settings, "gemini_api_key", os.environ.get("GEMINI_API_KEY"))
+        if gemini_key and gemini_key != "dummy_key_for_testing" and gemini_key != "your-gemini-api-key-here":
+            try:
+                self.gemini_client = genai.Client(api_key=gemini_key)
+            except Exception as e:
+                logger.warning(f"Gemini Client not initialized properly: {e}")
+                self.gemini_client = None
+        else:
+            self.gemini_client = None
 
     def preprocess_image(self, file_bytes: bytes) -> bytes:
         """Optimizes the image for the Vision API by resizing, compressing, and contrasting."""
@@ -47,25 +52,55 @@ class RecognitionPipelineManager:
             return file_bytes # Fallback to original
 
     def extract_vision_data(self, image_bytes: bytes) -> Tuple[str, list]:
-        """Calls Google Vision API for OCR text and labels."""
-        if not self.vision_client:
+        """Calls Google Gemini API for OCR text and labels (Replaces Google Cloud Vision)."""
+        import json
+        
+        if not self.gemini_client:
             return "", []
             
         try:
-            image = vision.Image(content=image_bytes)
+            # Prepare image for Gemini
+            image_part = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
             
-            # Perform text detection (OCR)
-            text_response = self.vision_client.text_detection(image=image)
-            texts = text_response.text_annotations
-            ocr_text = texts[0].description if texts else ""
+            # Create a precise prompt to simulate Cloud Vision text and label detection
+            prompt = (
+                "You are an image analysis system replacing Google Cloud Vision. "
+                "Analyze the provided image and extract any visible text (OCR). "
+                "Also, generate a list of descriptive labels for the image content (e.g. 'bottle', 'water', 'receipt', 'nutrition label'). "
+                "You must return ONLY a raw JSON object with the following schema: "
+                "{\n"
+                "  \"ocr_text\": \"Extracted text here, or empty string if no text is found\",\n"
+                "  \"labels\": [\"label1\", \"label2\", \"label3\"]\n"
+                "}\n"
+                "Do not include markdown formatting or backticks around the JSON."
+            )
             
-            # Perform label detection
-            label_response = self.vision_client.label_detection(image=image)
-            labels = [label.description for label in label_response.label_annotations]
+            response = self.gemini_client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[image_part, prompt],
+                config=types.GenerateContentConfig(
+                    temperature=0.0
+                )
+            )
+            
+            result_text = response.text.strip()
+            
+            # Clean up potential markdown formatting if Gemini includes it despite instructions
+            if result_text.startswith("```json"):
+                result_text = result_text[7:]
+            if result_text.startswith("```"):
+                result_text = result_text[3:]
+            if result_text.endswith("```"):
+                result_text = result_text[:-3]
+                
+            data = json.loads(result_text)
+            
+            ocr_text = data.get("ocr_text", "")
+            labels = data.get("labels", [])
             
             return ocr_text, labels
         except Exception as e:
-            logger.error(f"Google Vision API call failed: {e}")
+            logger.error(f"Google Gemini Vision API call failed: {e}")
             return "", []
 
     def lookup_barcode(self, barcode: str) -> Optional[Product]:

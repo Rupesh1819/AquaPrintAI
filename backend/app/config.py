@@ -15,8 +15,7 @@ class Settings(BaseSettings):
     jwt_secret: str
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     
-    google_gemini_api_key: str
-    google_vision_api_key: str
+    gemini_api_key: str
 
     model_config = SettingsConfigDict(env_file=str(ENV_FILE), env_file_encoding="utf-8", extra="ignore")
 
