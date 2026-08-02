@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Search, SlidersHorizontal, Loader2, Clock } from "lucide-react";
 import { useSearchStore } from "@/store/useSearchStore";
 import { ProductCard } from "@/components/product/ProductCard";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function SearchPage() {
   const { query, setQuery, addRecentSearch, recentSearches, clearRecentSearches } = useSearchStore();
@@ -36,7 +37,7 @@ export default function SearchPage() {
     const fetchResults = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/v1/products/search?q=${encodeURIComponent(query)}&page=1&size=20`);
+        const res = await fetch(`${API_BASE_URL}/products/search?q=${encodeURIComponent(query)}&page=1&size=20`);
         const data = await res.json();
         if (data.items) {
           setResults(data.items);
@@ -127,7 +128,7 @@ export default function SearchPage() {
             <div className="py-20 text-center flex flex-col items-center justify-center glass-card rounded-3xl">
               <Search className="w-12 h-12 text-on-surface-variant mb-4 opacity-50" />
               <h2 className="text-xl font-bold mb-2">No products found</h2>
-              <p className="text-on-surface-variant max-w-md">We couldn't find any exact matches for "{query}". Try checking your spelling or using more general terms.</p>
+              <p className="text-on-surface-variant max-w-md">We couldn&apos;t find any exact matches for &quot;{query}&quot;. Try checking your spelling or using more general terms.</p>
             </div>
           )}
         </div>
