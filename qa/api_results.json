@@ -1,0 +1,53 @@
+{
+  "db_verification": {
+    "tables_exist": true,
+    "tables": [
+      "alembic_version",
+      "auth_events",
+      "user_settings",
+      "user_profiles",
+      "product_categories",
+      "products",
+      "manufacturers",
+      "barcode_mapping",
+      "conservation_tips",
+      "product_alternatives",
+      "product_attributes",
+      "product_images",
+      "product_tags",
+      "tags",
+      "product_water_footprints",
+      "water_footprint_sources",
+      "sustainability_scores",
+      "water_footprint_versions",
+      "scan_history",
+      "user_goals",
+      "comparison_sessions",
+      "ai_conversations",
+      "ai_messages",
+      "user_favorites",
+      "challenges",
+      "challenge_participations",
+      "leaderboard_entries",
+      "badges",
+      "user_badges",
+      "import_jobs",
+      "xp_transactions",
+      "admin_action_logs",
+      "export_jobs",
+      "system_settings"
+    ],
+    "has_foreign_keys": true,
+    "status": "PASS"
+  },
+  "api_verification": {
+    "missing_jwt_401": true,
+    "invalid_jwt_401": true,
+    "user_on_admin_403": true,
+    "admin_on_admin_not_403": false
+  },
+  "gemini_verification": {
+    "sse_format_correct": true,
+    "status": "PASS"
+  }
+}
