@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, Bot, ScanLine } from "lucide-react";
+import { Bot, ScanLine, Download, Filter, TrendingUp, Users, Target } from "lucide-react";
 
 export default function AdminAnalyticsPage() {
   return (
