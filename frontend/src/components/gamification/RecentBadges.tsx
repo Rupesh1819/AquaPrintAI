@@ -2,7 +2,6 @@
 
 import { useAchievementStore } from "@/store/useAchievementStore";
 import { Award } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export function RecentBadges() {
   const { badges } = useAchievementStore();
