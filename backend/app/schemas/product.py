@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, HttpUrl, UUID4
+from pydantic import BaseModel, Field, HttpUrl, UUID4, ConfigDict
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -12,8 +12,7 @@ class TagBase(BaseModel):
 
 class TagRead(TagBase):
     id: UUID4
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # -----------------
 # Categories
@@ -26,8 +25,7 @@ class CategoryBase(BaseModel):
 
 class CategoryRead(CategoryBase):
     id: UUID4
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # -----------------
 # Manufacturers
@@ -40,8 +38,7 @@ class ManufacturerBase(BaseModel):
 
 class ManufacturerRead(ManufacturerBase):
     id: UUID4
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # -----------------
 # Sustainability & Footprints
@@ -53,8 +50,7 @@ class SustainabilityScoreRead(BaseModel):
     water_score: Optional[int] = Field(None, ge=0, le=100, description="Score from 0 to 100")
     overall_score: Optional[int] = Field(None, ge=0, le=100, description="Score from 0 to 100")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class WaterFootprintSourceRead(BaseModel):
     id: UUID4
@@ -62,8 +58,7 @@ class WaterFootprintSourceRead(BaseModel):
     url: Optional[HttpUrl]
     reliability_score: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ProductWaterFootprintRead(BaseModel):
     id: UUID4
@@ -73,8 +68,7 @@ class ProductWaterFootprintRead(BaseModel):
     source: Optional[WaterFootprintSourceRead] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # -----------------
 # Images & Attributes
@@ -87,16 +81,14 @@ class ProductImageRead(BaseModel):
     dominant_color: Optional[str]
     is_primary: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ProductAttributeRead(BaseModel):
     id: UUID4
     key: str
     value: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # -----------------
 # Products
@@ -125,8 +117,7 @@ class ProductListResponse(ProductBase):
     created_at: datetime
     images: List[ProductImageRead] = []
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ProductDetailResponse(ProductListResponse):
     updated_at: datetime
@@ -136,8 +127,7 @@ class ProductDetailResponse(ProductListResponse):
     sustainability_score: Optional[SustainabilityScoreRead] = None
     attributes: List[ProductAttributeRead] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PaginatedProductsResponse(BaseModel):
     items: List[ProductListResponse]
