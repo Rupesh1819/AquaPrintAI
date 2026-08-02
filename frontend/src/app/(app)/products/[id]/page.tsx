@@ -5,12 +5,22 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Share, Heart, Droplet, Leaf, Info, Factory, Globe, Box, Target, Package, Sparkles } from "lucide-react";
-import { WaterFootprintChart } from "@/components/product/WaterFootprintChart";
-import { SustainabilityGauge } from "@/components/product/SustainabilityGauge";
+import dynamic from "next/dynamic";
+
+const WaterFootprintChart = dynamic(() => import("@/components/product/WaterFootprintChart").then(mod => mod.WaterFootprintChart), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full animate-pulse bg-surface-variant rounded-xl" />
+});
+
+const SustainabilityGauge = dynamic(() => import("@/components/product/SustainabilityGauge").then(mod => mod.SustainabilityGauge), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full animate-pulse bg-surface-variant rounded-xl" />
+});
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { ProductCard } from "@/components/product/ProductCard";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
@@ -25,7 +35,7 @@ export default function ProductDetailsPage() {
     if (!id) return;
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/v1/products/${id}`);
+        const res = await fetch(`${API_BASE_URL}/products/${id}`);
         if (!res.ok) throw new Error("Not found");
         const data = await res.json();
         setProduct(data);
