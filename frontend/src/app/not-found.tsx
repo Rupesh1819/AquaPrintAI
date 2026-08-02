@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { SearchX } from "lucide-react";
 
 export default function NotFound() {
@@ -13,7 +13,7 @@ export default function NotFound() {
           Page Not Found
         </h2>
         <p className="text-on-surface-variant max-w-md mx-auto">
-          The page you are looking for doesn't exist or has been moved.
+          The page you are looking for doesn&apos;t exist or has been moved.
         </p>
       </div>
       <Link href="/" className={buttonVariants({ variant: "default", className: "bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container" })}>
