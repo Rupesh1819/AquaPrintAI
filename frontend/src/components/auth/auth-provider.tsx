@@ -40,8 +40,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const profile = await response.json();
           setProfile(profile);
         }
-      } catch (error) {
-        console.error("Failed to fetch profile", error);
+      } catch {
+        // Suppress errors during auth check
       } finally {
         setLoading(false);
       }
