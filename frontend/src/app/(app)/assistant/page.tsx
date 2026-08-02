@@ -7,11 +7,14 @@ import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Bot } from "lucide-react";
+import { toast } from "sonner";
 
 import { MessageBubble } from "@/components/ai/MessageBubble";
 import { TypingIndicator } from "@/components/ai/TypingIndicator";
 import { SuggestionChip } from "@/components/ai/SuggestionChip";
 import { ConversationSidebar } from "@/components/ai/ConversationSidebar";
+
+import { API_BASE_URL } from "@/lib/api";
 
 const SUGGESTIONS = [
   "How can I reduce my water footprint?",
@@ -40,7 +43,21 @@ export default function AssistantPage() {
 
   useEffect(() => {
     setIsClient(true);
-    // In a real implementation, you'd fetch initial history here
+    const fetchHistory = async () => {
+      try {
+        const token = (await supabase.auth.getSession()).data.session?.access_token;
+        const headers: Record<string, string> = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+        const res = await fetch(`${API_BASE_URL}/ai/history`, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          setConversations(data);
+        }
+      } catch (err) {
+        console.error("Failed to load conversation history", err);
+      }
+    };
+    fetchHistory();
   }, []);
 
   useEffect(() => {
@@ -48,39 +65,63 @@ export default function AssistantPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isStreaming, activeConversationId]);
 
+  const isValidUuid = (str: string | null) => {
+    return str ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str) : false;
+  };
+
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
 
     const token = (await supabase.auth.getSession()).data.session?.access_token;
-    if (!token) return;
 
-    let convId = activeConversationId;
+    const convId = activeConversationId;
+    const isNewConversation = !convId || !isValidUuid(convId);
     
-    // If no active conversation, create a new optimistic one
-    if (!convId) {
-      convId = uuidv4();
-      setActiveConversation(convId);
-      // add to list optimistically
-      setConversations([{ id: convId, title: text.slice(0, 30) + "...", updated_at: new Date().toISOString() }, ...conversations]);
+    // For new conversations, create an optimistic local ID for UI display
+    // but send null to backend so it creates a real DB conversation
+    let localConvId = convId;
+    if (isNewConversation) {
+      localConvId = uuidv4();
+      setActiveConversation(localConvId);
+      setConversations([{ id: localConvId, title: text.slice(0, 30) + "...", updated_at: new Date().toISOString() }, ...conversations]);
     }
 
     const userMessage = { id: uuidv4(), role: "user" as const, content: text, timestamp: new Date().toISOString() };
-    addMessage(convId, userMessage);
+    addMessage(localConvId!, userMessage);
     setInputValue("");
     setIsStreaming(true);
 
     const modelMessageId = uuidv4();
-    addMessage(convId, { id: modelMessageId, role: "model", content: "", timestamp: new Date().toISOString() });
+    addMessage(localConvId!, { id: modelMessageId, role: "model", content: "", timestamp: new Date().toISOString() });
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/v1/ai/chat`, {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/ai/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ message: text, conversation_id: convId })
+        headers,
+        body: JSON.stringify({ 
+          message: text, 
+          conversation_id: isNewConversation ? null : convId 
+        })
       });
+
+      if (!response.ok) {
+        const rawText = await response.text().catch(() => "");
+        let errorDetail = `HTTP ${response.status}`;
+        try {
+          const parsedErr = JSON.parse(rawText);
+          errorDetail = parsedErr.detail || parsedErr.message || errorDetail;
+        } catch {
+          if (rawText) errorDetail = rawText.slice(0, 100);
+        }
+        throw new Error(errorDetail);
+      }
 
       if (!response.body) throw new Error("No response body");
 
@@ -100,8 +141,25 @@ export default function AssistantPage() {
             if (data === '[DONE]') break;
             try {
               const parsed = JSON.parse(data);
+              
+              // Handle real conversation ID from backend
+              if (parsed.conversation_id) {
+                const realId = parsed.conversation_id;
+                setActiveConversation(realId);
+                // Sync conversation list item ID if it was new
+                setConversations(conversations.map(c => c.id === localConvId ? { ...c, id: realId } : c));
+                localConvId = realId;
+              }
+
+              if (parsed.error) {
+                console.error("Backend AI Error:", parsed.error);
+                toast.error("AI Error: " + parsed.error);
+                updateMessageContent(localConvId!, modelMessageId, `\n\n*(Error: ${parsed.error})*`);
+                setIsStreaming(false);
+                break;
+              }
               if (parsed.text) {
-                updateMessageContent(convId, modelMessageId, parsed.text);
+                updateMessageContent(localConvId!, modelMessageId, parsed.text);
               }
             } catch (e) {
               console.error("SSE Parse error", e, data);
@@ -109,9 +167,10 @@ export default function AssistantPage() {
           }
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error", error);
-      updateMessageContent(convId, modelMessageId, "\n\n*(Error connecting to AI Assistant)*");
+      toast.error(error.message || "Error connecting to AI Assistant");
+      updateMessageContent(localConvId!, modelMessageId, `\n\n*(Error: ${error.message || "Error connecting to AI Assistant"})*`);
     } finally {
       setIsStreaming(false);
     }
