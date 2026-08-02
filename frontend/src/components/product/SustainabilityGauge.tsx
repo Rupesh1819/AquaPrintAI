@@ -25,14 +25,14 @@ export function SustainabilityGauge({ score, grade }: SustainabilityGaugeProps) 
         <Leaf className="w-5 h-5 text-primary" /> Eco Score
       </h3>
       
-      <div className="h-[200px] w-full relative mt-4">
+      <div className="h-[200px] w-full relative mt-2 flex items-center justify-center">
         <ResponsiveContainer width="100%" height="100%">
           <RadialBarChart 
             cx="50%" 
-            cy="100%" 
-            innerRadius="70%" 
-            outerRadius="100%" 
-            barSize={20} 
+            cy="70%" 
+            innerRadius="65%" 
+            outerRadius="95%" 
+            barSize={18} 
             data={data}
             startAngle={180}
             endAngle={0}
@@ -44,13 +44,13 @@ export function SustainabilityGauge({ score, grade }: SustainabilityGaugeProps) 
               tick={false}
             />
             <RadialBar
-              background={{ fill: 'var(--surface)' }}
+              background={{ fill: 'var(--surface-variant)' }}
               dataKey="value"
               cornerRadius={10}
             />
           </RadialBarChart>
         </ResponsiveContainer>
-        <div className="absolute inset-0 flex flex-col items-center justify-end pb-4 pointer-events-none">
+        <div className="absolute inset-0 flex flex-col items-center justify-center pt-6 pointer-events-none">
           <span className="text-5xl font-extrabold tracking-tighter" style={{ color }}>
             {grade}
           </span>
