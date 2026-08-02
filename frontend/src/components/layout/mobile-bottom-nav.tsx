@@ -26,7 +26,7 @@ export function MobileBottomNav() {
           
           if (item.isPrimary) {
             return (
-              <Link key={index} href={item.href} className="flex flex-col items-center -mt-6">
+              <Link key={index} href={item.href} className="flex flex-col items-center -mt-6" aria-current={isActive ? "page" : undefined}>
                 <motion.div 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -42,7 +42,7 @@ export function MobileBottomNav() {
           }
 
           return (
-            <Link key={index} href={item.href} className="flex flex-col items-center justify-center w-16">
+            <Link key={index} href={item.href} className="flex flex-col items-center justify-center w-16" aria-current={isActive ? "page" : undefined}>
               <div className="relative flex h-8 w-12 items-center justify-center rounded-full transition-colors">
                 {isActive && (
                   <motion.div
