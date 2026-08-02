@@ -59,6 +59,9 @@ async def scan_image(
     try:
         result = manager.process_image(file_bytes)
         
+        if not result.get("success") or not result.get("product"):
+            raise HTTPException(status_code=404, detail="No matching product found in database.")
+        
         return ScannerResponse(
             success=result["success"],
             product=result["product"],
@@ -68,5 +71,15 @@ async def scan_image(
             labels=result.get("labels"),
             message="Product recognized from image." if result["success"] else "Could not confidently identify product."
         )
+    except ValueError as ve:
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=500, content={
+            "success": False,
+            "error": "Gemini API Error",
+            "message": str(ve),
+            "details": "The AI service encountered an error."
+        })
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
