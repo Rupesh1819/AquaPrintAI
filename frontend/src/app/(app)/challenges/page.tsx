@@ -7,6 +7,7 @@ import { RecentBadges } from "@/components/gamification/RecentBadges";
 import { useChallengeStore } from "@/store/useChallengeStore";
 import { useAchievementStore } from "@/store/useAchievementStore";
 import { Loader2 } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function ChallengesPage() {
   const { setChallenges } = useChallengeStore();
@@ -17,9 +18,9 @@ export default function ChallengesPage() {
     const fetchGamificationData = async () => {
       try {
         const [progressRes, challengesRes, badgesRes] = await Promise.all([
-          fetch("http://127.0.0.1:8000/api/v1/gamification/profile/progress"),
-          fetch("http://127.0.0.1:8000/api/v1/gamification/challenges"),
-          fetch("http://127.0.0.1:8000/api/v1/gamification/badges")
+          fetch(`${API_BASE_URL}/gamification/profile/progress`),
+          fetch(`${API_BASE_URL}/gamification/challenges`),
+          fetch(`${API_BASE_URL}/gamification/badges`)
         ]);
         
         if (progressRes.ok) setUserProgress(await progressRes.json());
