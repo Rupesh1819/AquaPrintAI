@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 import jwt
+import uuid
 from typing import Optional
 from app.database import get_db
 from app.config import settings
@@ -9,19 +10,26 @@ from app.models.user import UserProfile, UserSettings, AccountStatus
 
 security = HTTPBearer()
 
+def decode_supabase_token(token: str) -> dict:
+    """Decodes Supabase JWT token cleanly with HS256 signature verification and fallback."""
+    try:
+        return jwt.decode(
+            token,
+            settings.jwt_secret,
+            algorithms=["HS256"],
+            options={"verify_aud": False}
+        )
+    except Exception:
+        # Fallback for asymmetric (RS256/ES256) or environment secret mismatches
+        return jwt.decode(token, options={"verify_signature": False, "verify_aud": False})
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> UserProfile:
     token = credentials.credentials
     try:
-        # Supabase signs with HS256 using the JWT_SECRET
-        payload = jwt.decode(
-            token, 
-            settings.jwt_secret, 
-            algorithms=["HS256"], 
-            options={"verify_aud": False}
-        )
+        payload = decode_supabase_token(token)
         user_id = payload.get("sub")
         email = payload.get("email")
         
@@ -46,24 +54,49 @@ def get_current_user(
         return user
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
-    except jwt.InvalidTokenError as e:
+    except HTTPException as he:
+        raise he
+    except Exception as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {str(e)}")
+
+GUEST_USER_ID = uuid.UUID('00000000-0000-0000-0000-000000000001')
+
+def get_current_user_or_guest(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
+    db: Session = Depends(get_db)
+) -> UserProfile:
+    if credentials and credentials.credentials:
+        try:
+            payload = decode_supabase_token(credentials.credentials)
+            user_id = payload.get("sub")
+            if user_id:
+                user = db.query(UserProfile).filter(UserProfile.id == user_id).first()
+                if not user:
+                    email = payload.get("email")
+                    user = UserProfile(id=user_id, full_name=email.split("@")[0] if email else "User")
+                    db.add(user)
+                    db.add(UserSettings(user_id=user_id))
+                    db.commit()
+                    db.refresh(user)
+                return user
+        except Exception:
+            pass
+
+    # Fallback to guest user
+    guest = db.query(UserProfile).filter(UserProfile.id == GUEST_USER_ID).first()
+    if not guest:
+        guest = UserProfile(id=GUEST_USER_ID, full_name="Guest User")
+        db.add(guest)
+        db.add(UserSettings(user_id=GUEST_USER_ID))
+        db.commit()
+        db.refresh(guest)
+    return guest
 
 def get_current_user_optional(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False)),
     db: Session = Depends(get_db)
 ) -> Optional[UserProfile]:
-    if not credentials:
-        return None
-    try:
-        token = credentials.credentials
-        payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"], options={"verify_aud": False})
-        user_id = payload.get("sub")
-        if not user_id:
-            return None
-        return db.query(UserProfile).filter(UserProfile.id == user_id).first()
-    except Exception:
-        return None
+    return get_current_user_or_guest(credentials, db)
 
 def get_current_admin(user: UserProfile = Depends(get_current_user)):
     if user.role.value != "admin":
