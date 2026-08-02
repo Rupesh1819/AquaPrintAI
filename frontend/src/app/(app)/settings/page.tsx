@@ -13,6 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LogOut, User as UserIcon, Shield, Bell, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { API_BASE_URL } from "@/lib/api";
+
 export default function SettingsPage() {
   const supabase = createClient();
   const router = useRouter();
@@ -27,13 +29,12 @@ export default function SettingsPage() {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     
-    if (!token) throw new Error("No active session");
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
     
-    const res = await fetch(`http://127.0.0.1:8000/api/v1/users/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await fetch(`${API_BASE_URL}/users/me`, { headers });
     
-    if (!res.ok) throw new Error(`Failed to fetch profile`);
+    if (!res.ok) return { full_name: "Guest User", email: "guest@aquaprint.ai" };
     return res.json();
   };
 
