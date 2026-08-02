@@ -5,10 +5,16 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useDashboardStore } from "@/store/useDashboardStore";
 
-import { AnalyticsCharts } from "@/components/dashboard/AnalyticsCharts";
+import dynamic from "next/dynamic";
+
+const AnalyticsCharts = dynamic(() => import("@/components/dashboard/AnalyticsCharts").then(mod => mod.AnalyticsCharts), {
+  ssr: false,
+  loading: () => <div className="h-80 w-full animate-pulse bg-surface-variant rounded-xl" />
+});
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FadeInUp } from "@/components/shared/animations";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function TrackingPage() {
   const supabase = createClient();
@@ -27,11 +33,10 @@ export default function TrackingPage() {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     
-    if (!token) throw new Error("No active session");
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
     
-    const res = await fetch(`http://127.0.0.1:8000/api/v1/dashboard/${endpoint}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await fetch(`${API_BASE_URL}/dashboard/${endpoint}`, { headers });
     
     if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
     return res.json();
