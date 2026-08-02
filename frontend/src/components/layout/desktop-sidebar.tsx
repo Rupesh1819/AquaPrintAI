@@ -47,7 +47,7 @@ export function DesktopSidebar() {
         const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
         
         return (
-          <Link key={index} href={item.href}>
+          <Link key={index} href={item.href} aria-current={isActive ? "page" : undefined}>
             <span
               className={cn(
                 "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-surface-variant hover:text-primary transition-colors",
