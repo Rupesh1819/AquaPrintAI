@@ -19,11 +19,14 @@ def get_dashboard_summary(db: Session, user_id: uuid.UUID) -> Dict[str, Any]:
     )
     
     # Average Sustainability Score
-    avg_score_query = db.query(func.avg(Product.sustainability_score)).join(
+    from app.models.product import SustainabilityScore
+    avg_score_query = db.query(func.avg(SustainabilityScore.overall_score)).join(
+        Product, Product.id == SustainabilityScore.product_id
+    ).join(
         ScanHistory, ScanHistory.product_id == Product.id
     ).filter(ScanHistory.user_id == user_id, ScanHistory.success == True).scalar()
     
-    avg_score = float(avg_score_query) if avg_score_query else 0.0
+    avg_score = float(avg_score_query) if avg_score_query is not None else 0.0
     
     # User Profile logic
     profile = db.query(UserProfile).filter(UserProfile.id == user_id).first()
@@ -132,19 +135,18 @@ def get_dashboard_recommendations(db: Session, user_id: uuid.UUID) -> List[Any]:
         return []
         
     alternatives = db.query(ProductAlternative).filter(
-        ProductAlternative.source_product_id.in_(recent_product_ids)
+        ProductAlternative.product_id.in_(recent_product_ids)
     ).limit(5).all()
     
     recs = []
     for alt in alternatives:
-        target = db.query(Product).filter(Product.id == alt.target_product_id).first()
-        source = db.query(Product).filter(Product.id == alt.source_product_id).first()
+        target = db.query(Product).filter(Product.id == alt.alternative_product_id).first()
+        source = db.query(Product).filter(Product.id == alt.product_id).first()
         if target and source:
             recs.append({
                 "source_product": {"id": str(source.id), "name": source.name},
-                "recommended_product": {"id": str(target.id), "name": target.name, "water_footprint": target.water_footprint_liters},
+                "recommended_product": {"id": str(target.id), "name": target.name},
                 "reason": alt.reason,
-                "confidence_score": alt.confidence_score
             })
             
     return recs
