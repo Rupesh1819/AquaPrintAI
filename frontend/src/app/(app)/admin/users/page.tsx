@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAdminStore } from "@/store/useAdminStore";
-import { Loader2, Search, MoreVertical, ShieldAlert, CheckCircle2, Ban } from "lucide-react";
+import { Loader2, Search, Ban, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 
