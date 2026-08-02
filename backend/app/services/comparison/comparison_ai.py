@@ -1,16 +1,24 @@
-import google.generativeai as genai
 import os
 import json
+import logging
 from typing import AsyncGenerator
+from google import genai
 from app.config import settings
 
-GEMINI_API_KEY = getattr(settings, "gemini_api_key", os.environ.get("GEMINI_API_KEY"))
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-else:
-    genai.configure(api_key="dummy_key_for_testing")
+logger = logging.getLogger(__name__)
 
-def get_comparison_model():
+GEMINI_API_KEY = getattr(settings, "gemini_api_key", os.environ.get("GEMINI_API_KEY"))
+
+try:
+    if GEMINI_API_KEY and GEMINI_API_KEY != "dummy_key_for_testing":
+        client = genai.Client(api_key=GEMINI_API_KEY)
+    else:
+        client = None
+except Exception as e:
+    client = None
+    logger.error(f"Gemini initialization failed in comparison: {e}")
+
+async def stream_comparison_summary(comparison_data: dict) -> AsyncGenerator[str, None]:
     sys_prompt = """You are the AquaPrint AI Sustainability Analyst.
 Your task is to analyze a JSON payload comparing several products.
 You must:
@@ -22,18 +30,16 @@ You must:
 Be concise, educational, and format your response beautifully with Markdown (use bolding and bullet points).
 Do not just say "Product A wins". Explain the 'Why'.
 """
-    return genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        system_instruction=sys_prompt
-    )
-
-async def stream_comparison_summary(comparison_data: dict) -> AsyncGenerator[str, None]:
     try:
-        model = get_comparison_model()
-        
         # We simulate SSE format: data: <content>\n\n
-        if GEMINI_API_KEY and GEMINI_API_KEY != "dummy_key_for_testing":
-            response = model.generate_content(json.dumps(comparison_data), stream=True)
+        if client:
+            response = client.models.generate_content_stream(
+                model="gemini-3.5-flash",
+                contents=[json.dumps(comparison_data)],
+                config=genai.types.GenerateContentConfig(
+                    system_instruction=sys_prompt,
+                )
+            )
             for chunk in response:
                 if chunk.text:
                     data = json.dumps({"text": chunk.text})
