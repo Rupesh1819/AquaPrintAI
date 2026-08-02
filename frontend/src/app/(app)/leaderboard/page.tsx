@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Trophy, Medal, User } from "lucide-react";
+import Image from "next/image";
 import { useLeaderboardStore } from "@/store/useLeaderboardStore";
 import { Loader2 } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function LeaderboardPage() {
   const { globalRanking, setGlobalRanking } = useLeaderboardStore();
@@ -14,7 +16,7 @@ export default function LeaderboardPage() {
     const fetchLeaderboard = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/v1/gamification/leaderboard?period=${period}`);
+        const res = await fetch(`${API_BASE_URL}/gamification/leaderboard?period=${period}`);
         if (res.ok) {
           setGlobalRanking(await res.json());
         }
@@ -79,9 +81,9 @@ export default function LeaderboardPage() {
                   </div>
                   
                   {/* Avatar */}
-                  <div className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="relative w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden shrink-0">
                     {entry.avatar_url ? (
-                      <img src={entry.avatar_url} alt={entry.display_name} className="w-full h-full object-cover" />
+                      <Image src={entry.avatar_url} alt={entry.display_name} fill className="rounded-full object-cover" unoptimized />
                     ) : (
                       <User className="w-5 h-5 text-on-surface-variant" />
                     )}
