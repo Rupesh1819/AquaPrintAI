@@ -5,10 +5,20 @@ import { useRouter } from "next/navigation";
 import { useComparisonStore } from "@/store/useComparisonStore";
 import { Button } from "@/components/ui/button";
 import { Scale, Trophy, Loader2 } from "lucide-react";
-import { ComparisonRadarChart } from "@/components/comparison/ComparisonRadarChart";
-import { ComparisonBarChart } from "@/components/comparison/ComparisonBarChart";
+import dynamic from "next/dynamic";
+
+const ComparisonRadarChart = dynamic(() => import("@/components/comparison/ComparisonRadarChart").then(mod => mod.ComparisonRadarChart), {
+  ssr: false,
+  loading: () => <div className="h-80 w-full animate-pulse bg-surface-variant rounded-xl" />
+});
+
+const ComparisonBarChart = dynamic(() => import("@/components/comparison/ComparisonBarChart").then(mod => mod.ComparisonBarChart), {
+  ssr: false,
+  loading: () => <div className="h-80 w-full animate-pulse bg-surface-variant rounded-xl" />
+});
 import { SustainabilityCalculator } from "@/components/comparison/SustainabilityCalculator";
 import { AISummaryCard } from "@/components/comparison/AISummaryCard";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function ComparePage() {
   const router = useRouter();
@@ -21,43 +31,12 @@ export default function ComparePage() {
   const [aiSummary, setAiSummary] = useState("");
   const [isAiStreaming, setIsAiStreaming] = useState(false);
 
-  useEffect(() => {
-    if (selectedProductIds.length < 2) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchComparisonData = async () => {
-      try {
-        const res = await fetch("http://127.0.0.1:8000/api/v1/comparison/compare", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ product_ids: selectedProductIds })
-        });
-        
-        if (!res.ok) throw new Error("Failed to generate comparison");
-        const json = await res.json();
-        setData(json);
-        
-        // After fetching data, automatically trigger AI summary
-        triggerAiSummary(json);
-        
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchComparisonData();
-  }, [selectedProductIds]);
-
-  const triggerAiSummary = async (comparisonData: any) => {
+  async function triggerAiSummary(comparisonData: any) {
     setIsAiStreaming(true);
     setAiSummary("");
     
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/comparison/ai-summary", {
+      const res = await fetch(`${API_BASE_URL}/comparison/ai-summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(comparisonData)
@@ -91,7 +70,7 @@ export default function ComparePage() {
     } finally {
       setIsAiStreaming(false);
     }
-  };
+  }
 
   if (loading) {
     return (
