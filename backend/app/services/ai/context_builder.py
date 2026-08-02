@@ -33,10 +33,10 @@ def build_retrieval_augmented_context(db: Session, user_id: uuid.UUID) -> str:
     # 4. Product Alternatives for recent scans
     alts_text = []
     if product_ids:
-        alts = db.query(ProductAlternative).filter(ProductAlternative.source_product_id.in_(product_ids)).limit(3).all()
+        alts = db.query(ProductAlternative).filter(ProductAlternative.product_id.in_(product_ids)).limit(3).all()
         for alt in alts:
-            source = db.query(Product).filter(Product.id == alt.source_product_id).first()
-            target = db.query(Product).filter(Product.id == alt.target_product_id).first()
+            source = db.query(Product).filter(Product.id == alt.product_id).first()
+            target = db.query(Product).filter(Product.id == alt.alternative_product_id).first()
             if source and target:
                 alts_text.append(f"- Instead of {source.name}, recommend {target.name} (Footprint: {target.water_footprint_liters}L) because: {alt.reason}")
                 
