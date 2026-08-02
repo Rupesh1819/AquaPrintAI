@@ -12,6 +12,8 @@ import { XPProgressWidget } from "@/components/gamification/XPProgressWidget";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FadeInUp } from "@/components/shared/animations";
 
+import { API_BASE_URL } from "@/lib/api";
+
 export default function ImpactPage() {
   const supabase = createClient();
   const [isClient, setIsClient] = useState(false);
@@ -26,11 +28,10 @@ export default function ImpactPage() {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     
-    if (!token) throw new Error("No active session");
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
     
-    const res = await fetch(`http://127.0.0.1:8000/api/v1/${endpoint}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await fetch(`${API_BASE_URL}/${endpoint}`, { headers });
     
     if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
     return res.json();
