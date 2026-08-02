@@ -7,7 +7,12 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 import { SummaryCards } from "@/components/dashboard/SummaryCards";
-import { AnalyticsCharts } from "@/components/dashboard/AnalyticsCharts";
+import dynamic from "next/dynamic";
+
+const AnalyticsCharts = dynamic(() => import("@/components/dashboard/AnalyticsCharts").then(mod => mod.AnalyticsCharts), {
+  ssr: false,
+  loading: () => <div className="h-80 w-full animate-pulse bg-surface-variant rounded-xl" />
+});
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { Recommendations } from "@/components/dashboard/Recommendations";
 import { GoalTracker } from "@/components/dashboard/GoalTracker";
@@ -16,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Droplets, ScanLine, Info } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -40,11 +46,10 @@ export default function DashboardPage() {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     
-    if (!token) throw new Error("No active session");
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
     
-    const res = await fetch(`http://127.0.0.1:8000/api/v1/dashboard/${endpoint}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await fetch(`${API_BASE_URL}/dashboard/${endpoint}`, { headers });
     
     if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
     return res.json();
