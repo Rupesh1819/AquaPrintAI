@@ -45,11 +45,11 @@ export function ComparisonRadarChart({ products }: ComparisonRadarChartProps) {
           <PolarAngleAxis dataKey="subject" tick={{ fill: theme === 'dark' ? '#9ca3af' : '#4b5563', fontSize: 12 }} />
           <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
           
-          {products.map((p, idx) => (
+          {products.map((product, idx) => (
             <Radar
-              key={p.id}
-              name={p.name}
-              dataKey={p.name}
+              key={product.id}
+              name={product.name}
+              dataKey={product.name}
               stroke={STROKE_COLORS[idx % STROKE_COLORS.length]}
               fill={STROKE_COLORS[idx % STROKE_COLORS.length]}
               fillOpacity={0.4}
