@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Image as ImageIcon, X, ScanLine, AlertTriangle, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FadeInUp } from "@/components/shared/animations";
@@ -93,10 +94,12 @@ export function ScannerView({ onCapture, isProcessing, error, onResetError }: Sc
         ) : (
           <FadeInUp key="processing" className="space-y-6">
             <Card className="glass-card overflow-hidden relative aspect-[4/5] sm:aspect-square flex items-center justify-center bg-black/5">
-              <img 
+              <Image 
                 src={previewUrl} 
                 alt="Scan preview" 
-                className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                fill 
+                className="object-cover rounded-xl" 
+                unoptimized 
               />
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
