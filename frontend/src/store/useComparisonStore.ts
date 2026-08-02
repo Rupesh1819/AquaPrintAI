@@ -13,7 +13,7 @@ export interface ComparisonState {
 
 export const useComparisonStore = create<ComparisonState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       selectedProductIds: [],
       history: [],
       
