@@ -233,6 +233,14 @@ class RecognitionPipelineManager:
         self.db.add(history)
         self.db.commit()
 
+        # Award XP for successful scans
+        if success and self.user_id:
+            try:
+                from app.services.gamification.xp_service import award_xp
+                award_xp(self.db, str(self.user_id), 10, "product_scan")
+            except Exception as e:
+                logger.error(f"Failed to award XP: {e}")
+
     def process_barcode(self, barcode: str) -> Dict[str, Any]:
         product = self.lookup_barcode(barcode)
         success = product is not None

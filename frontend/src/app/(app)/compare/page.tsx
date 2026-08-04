@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useComparisonStore } from "@/store/useComparisonStore";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Scale, Trophy, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -27,6 +28,42 @@ export default function ComparePage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
+  const supabase = createClient();
+
+  useEffect(() => {
+    if (selectedProductIds.length < 2) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (session?.access_token) {
+          headers["Authorization"] = `Bearer ${session.access_token}`;
+        }
+        
+        const res = await fetch(`${API_BASE_URL}/comparison/matrix`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ product_ids: selectedProductIds })
+        });
+        
+        if (!res.ok) throw new Error("Failed to load comparison data");
+        const json = await res.json();
+        setData(json);
+      } catch (err: any) {
+        setError(err.message || "An error occurred while comparing products.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [selectedProductIds, supabase]);
   
   const [aiSummary, setAiSummary] = useState("");
   const [isAiStreaming, setIsAiStreaming] = useState(false);
