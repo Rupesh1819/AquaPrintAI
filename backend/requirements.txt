@@ -13,3 +13,4 @@ google-genai==2.16.0
 python-multipart==0.0.9
 sse-starlette>=2.0.0
 google-generativeai>=0.8.2
+groq>=0.4.2

@@ -26,7 +26,8 @@ def build_retrieval_augmented_context(db: Session, user_id: uuid.UUID) -> str:
     for s in recent_scans:
         if s.product:
             product_ids.append(s.product_id)
-            scans_text.append(f"- {s.product.name} (Footprint: {s.product.water_footprint_liters}L, Eco Score: {s.product.sustainability_score})")
+            total_fp = next((fp.amount for fp in s.product.water_footprints if getattr(fp.footprint_type, 'value', fp.footprint_type) == 'total'), 0)
+            scans_text.append(f"- {s.product.name} (Footprint: {total_fp}L, Eco Score: {s.product.sustainability_score.overall_score if s.product.sustainability_score else 'N/A'})")
     
     scans_str = "\n".join(scans_text) if scans_text else "- No recent scans"
     
