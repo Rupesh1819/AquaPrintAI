@@ -13,8 +13,14 @@ def get_dashboard_summary(db: Session, user_id: uuid.UUID) -> Dict[str, Any]:
     
     # Calculate water saved based on scanned products against a hypothetical baseline (e.g., 50L avg)
     scans = db.query(ScanHistory).filter(ScanHistory.user_id == user_id, ScanHistory.success == True).all()
+    def _get_footprint(p):
+        for wf in p.water_footprints:
+            if getattr(wf.footprint_type, "value", wf.footprint_type) == "total":
+                return wf.amount
+        return 50.0
+
     estimated_water_saved = sum(
-        max(0, 50.0 - (scan.product.water_footprint_liters or 50.0)) 
+        max(0, 50.0 - _get_footprint(scan.product)) 
         for scan in scans if scan.product
     )
     

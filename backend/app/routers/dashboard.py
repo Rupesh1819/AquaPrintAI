@@ -46,13 +46,24 @@ def get_recent_scans(current_user: UserProfile = Depends(get_current_user), db: 
     res = []
     for s in scans:
         if s.product:
+            # Calculate total footprint
+            total_fp = 0.0
+            for fp in s.product.water_footprints:
+                if getattr(fp.footprint_type, 'value', fp.footprint_type) == 'total':
+                    total_fp = fp.amount
+                    break
+            
+            from app.models.product import ProductImage
+            img = db.query(ProductImage).filter(ProductImage.product_id == s.product.id, ProductImage.is_primary == True).first()
+                    
             res.append({
                 "id": str(s.id),
                 "product": {
                     "id": str(s.product.id),
                     "name": s.product.name,
-                    "water_footprint_liters": s.product.water_footprint_liters,
-                    "sustainability_score": s.product.sustainability_score
+                    "water_footprint_liters": total_fp,
+                    "sustainability_score": s.product.sustainability_score,
+                    "image_url": img.url if img else None
                 },
                 "confidence_score": s.confidence_score,
                 "recognition_type": s.recognition_type.value,
